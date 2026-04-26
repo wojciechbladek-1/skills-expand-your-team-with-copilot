@@ -569,6 +569,13 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-buttons">
+        <span class="share-label">Share:</span>
+        <button class="share-btn share-twitter" title="Share on X (Twitter)" aria-label="Share on X (Twitter)">𝕏</button>
+        <button class="share-btn share-facebook" title="Share on Facebook" aria-label="Share on Facebook">f</button>
+        <button class="share-btn share-whatsapp" title="Share on WhatsApp" aria-label="Share on WhatsApp">💬</button>
+        <button class="share-btn share-copy" title="Copy link" aria-label="Copy link">🔗</button>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -586,6 +593,61 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handlers for share buttons
+    const shareText = `Check out "${name}" at Mergington High School!\n${details.description}\nSchedule: ${formattedSchedule}`;
+    const shareUrl = window.location.href;
+
+    activityCard.querySelector(".share-twitter").addEventListener("click", () => {
+      window.open(
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    });
+
+    activityCard.querySelector(".share-facebook").addEventListener("click", () => {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    });
+
+    activityCard.querySelector(".share-whatsapp").addEventListener("click", () => {
+      window.open(
+        `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + "\n" + shareUrl)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    });
+
+    activityCard.querySelector(".share-copy").addEventListener("click", () => {
+      const textToCopy = shareText + "\n" + shareUrl;
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          showMessage("Activity info copied to clipboard!", "success");
+        }).catch(() => {
+          showMessage("Could not copy to clipboard.", "error");
+        });
+      } else {
+        // Fallback for non-secure contexts
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          showMessage("Activity info copied to clipboard!", "success");
+        } catch {
+          showMessage("Could not copy to clipboard.", "error");
+        }
+        document.body.removeChild(textArea);
+      }
+    });
 
     activitiesList.appendChild(activityCard);
   }
